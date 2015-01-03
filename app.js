@@ -2,42 +2,34 @@
 var graph;
 require('./app/helpers');
 require('./app/constants');
+require('./app/sources');
 
-require('./app/lib/fetchfeeds')(
-        [
-            'http://www.thehindu.com/news/national/?service=rss',
-            'http://timesofindia.feedsportal.com/c/33039/f/533965/index.rss',
-            'http://feeds.hindustantimes.com/HT-HomePage-TopStories',
-            'http://feeds.feedburner.com/NdtvNews-TopStories',
-            'http://indianexpress.com/section/india/feed/',
-            'http://www.firstpost.com/india/feed',
-            'http://www.tehelka.com/?feed=custom_feed',
-            'http://feeds.feedburner.com/NDTV-Business',
-            'http://economictimes.indiatimes.com/rssfeedsdefault.cms',
-            'http://www.oneindia.com/rss/news-india-fb.xml'
-            
-//            'http://topics.nytimes.com/top/opinion/editorialsandoped/editorials/index.html?rss=1',
-//            'http://www.theguardian.com/tone/editorials/rss',
-//            'http://online.wsj.com/xml/rss/3_7041.xml',
-//            'http://washingtonpost.com/rss/opinions'
-        ], function(data) {
-    console.log('Computation Done');
+var gfeed = require('./app/lib/feedfetcher');
+var data = [
+];
+
+graph = require('./app/lib/graph')({
+    data: data
+});
+
+gfeed.fetchFeeds(sources, function(data) {
+    console.log('Fetching Done entering computation phase');
     graph = require('./app/lib/graph')({
         data: data
     });
 
-//    function getArticles(data) {
-//        if (data.length > 1) {
-//            for (var index in data) {
-//                console.log(data[index].title, data[index].link);
-//            }
-//            console.log('\n');
-//        }
-//    }
+    //    function getArticles(data) {
+    //        if (data.length > 1) {
+    //            for (var index in data) {
+    //                console.log(data[index].title, data[index].link);
+    //            }
+    //            console.log('\n');
+    //        }
+    //    }
 
-//    for (var index in graph.data) {
-//        getArticles(graph.data[index]);
-//    }
+    //    for (var index in graph.data) {
+    //        getArticles(graph.data[index]);
+    //    }
 
 });
 
@@ -73,7 +65,23 @@ app.configure(function() {
         });
     });
 
+    app.get('/checker', function(req, res) {
+        res.render('checker', {
+            title: 'checker'
+        });
+    });
+
+    app.post('/check', function(req, res) {
+        gfeed.getArticles(req.body.data, function(data) {
+            graph = require('./app/lib/graph')({
+                data: data
+            });
+            res.send(graph.debug);
+        });
+    });
+
     http.createServer(app).listen(process.env.PORT || 3000, function() {
         console.log('Server Started');
     });
 });
+ 

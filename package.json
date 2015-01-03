@@ -14,6 +14,9 @@
         "npm": "1.4.13",
         "string": "*",
         "google-feed-api": "0.0.2",
-        "html-entities": "*"
+        "html-entities": "*",
+        "cheerio": "*",
+        "htmlstrip-native": "*",
+        "request": "*"
     }
 }

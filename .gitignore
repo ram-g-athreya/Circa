@@ -7,3 +7,4 @@ styles
 !/dist/
 /npm-debug.log
 !/app/styles/
+/data
