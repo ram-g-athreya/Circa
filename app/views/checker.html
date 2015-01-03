@@ -8,24 +8,6 @@
         <link href="/bower_components/bootstrap-material-design/dist/css/material-wfont.min.css" rel="stylesheet">
         <link href="//fezvrasta.github.io/snackbarjs/dist/snackbar.min.css" rel="stylesheet">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-
-        <style>
-            .no-gutter{
-                padding: 0;
-            }
-            .panel-body{
-                height: 90px;
-                max-height: 90px;
-            }
-            
-            .panel-heading{
-                height: 40px;
-                max-height: 40px;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-                overflow: hidden;
-            }
-        </style>
     </head>
     <body>
         <div class="header-panel shadow-z-2" style="background: #009587;">
@@ -37,45 +19,32 @@
                 </div>
             </div>
         </div>
-
-        <div class="container-fluid clearfix" style="margin-top: 4em;">
-            <div class="row col-lg-offset-1">
-                <div class="checkbox">
-                    <label>
-                        <input type="checkbox" id="group-checkbox"> Show only collections
-                    </label>
-                </div>
-
-                <% for(var index in data) {%>
-                <% var parent_cls = (data[index].length == 1) ? 'single' : ''; %>
-                <% var count = 0; %>
-                <div class="col-lg-12 <%= parent_cls %>">
-                    <div class='page-header'>
-                        <h1>
-                            Story #<%= parseInt(index) + 1 %>
-                        </h1>
-                    </div>
-
-                    <% for(var _index in data[index]) {%>
-                    <% var cls = (count % 2 != 0) ? 'col-lg-offset-1' : ''; %>
-                    <a href="<%= data[index][_index].link %>" target='_blank'>
-                        <div class="col-lg-5 no-gutter <%= cls %>">
-                            <div class="panel panel-success">
-                                <div class="panel-heading">
-                                    <%= data[index][_index].title %>
-                                </div>
-                                <div class="panel-body">
-                                    <% var content = data[index][_index].content %>
-                                    <% content = (content.length <= 200) ? content : content.slice(0, 190) + '...'; %>
-                                    <%= content %>
-                                </div>
+        <div class="well bs-component" style="margin: 4em;">
+            <div class="row">
+                <form class="form-horizontal">
+                    <fieldset>
+                        <div class="col-lg-6">
+                            <div class="form-group col-lg-10">
+                                <input class="form-control floating-label" id="input_url_1" type="text" placeholder="First URL">
+                            </div>
+                        </div> 
+                        <div class="col-lg-6">
+                            <div class="form-group col-lg-10">
+                                <input class="form-control floating-label" id="input_url_2" type="text" placeholder="Second URL">
+                            </div>
+                        </div> 
+                        <div class="form-group col-lg-12">
+                            <div class="col-lg-12">
+                                <input type="button" id="submit_button" class="btn btn-primary" value="Submit" />
                             </div>
                         </div>
-                    </a>
-                    <% count++; %>
-                    <% } %>
-                </div>
-                <% } %>
+                        <div class="form-group col-lg-12">
+                            <div id="response_content" class="col-lg-12">
+                                
+                            </div>
+                        </div>
+                    </fieldset>
+                </form>
             </div>
         </div>
 
@@ -90,6 +59,22 @@
         <script src="//cdnjs.cloudflare.com/ajax/libs/noUiSlider/6.2.0/jquery.nouislider.min.js"></script>
         <script>
             $(function() {
+                $('#submit_button').click(function() {
+                    $.ajax({
+                        url: '/check',
+                        type: 'post',
+                        data: {
+                            data: [
+                                $('#input_url_1').val(),
+                                $('#input_url_2').val()
+                            ]
+                        },
+                        success: function(response) {
+                            $('#response_content').html(response.replace(/\n/g,"<br><br>"));
+                        }
+                    });
+                });
+
                 $('#group-checkbox').click(function() {
                     if (this.checked) {
                         $('.single').hide();
@@ -119,5 +104,6 @@
                 });
             });
         </script>
+
     </body>
 </html>

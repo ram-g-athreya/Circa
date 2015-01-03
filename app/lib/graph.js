@@ -7,24 +7,26 @@ module.exports = function(options) {
     var links = [];
     var content_key = options.content_key || 'content';
 
-    var support_threshold = 0.01;
+    var support_threshold = 0.001;
+    graph.debug = "";
 
     graph.w = [];
     graph.f = [];
     graph.data = [];
+    graph.labels = [];
 
     function findDistance(id1, id2) {
-        var f1 = graph.f[id1],
-                f2 = graph.f[id2],
+        var f1 = graph.f[id1].words,
+                f2 = graph.f[id2].words,
                 dist = 0;
         for (var index in f1) {
             //Check if index also exists in f2
             if (f2[index]) {
-                //console.log(index + " IS COMMON BETWEEN THE TWO");
+                graph.debug += index + " is common. Product is " + (f1[index] * f2[index]) + '\n';
                 dist += f1[index] * f2[index];
             }
         }
-
+        //(graph.w[id1].length * graph.w[id2].length);
         return dist / Math.pow(
                 Math.max(graph.w[id1].length, graph.w[id2].length)
                 , 2);
@@ -40,15 +42,12 @@ module.exports = function(options) {
             if (_item.hide) {
                 continue;
             }
-            
+
             if (JSON.stringify(item.content) == JSON.stringify(_item.content)) {
                 item.hide = 1;
                 break;
             }
-            
             dist = findDistance(index, id);
-
-
 
             if (dist > support_threshold && dist >= max_dist) {
 //                console.log(dist);
@@ -57,15 +56,16 @@ module.exports = function(options) {
 
 //                console.log(graph.f[id]);
 //                console.log(graph.f[index]);
-//                
-//                console.log(sanitize(options.data[id].content));
+
+
+
+//                console.log(sanitize(options.data[id].title));
 //                console.log('\n');
-//                console.log(sanitize(options.data[index].content));
+//                console.log(sanitize(options.data[index].title));
 //                console.log('\n\n\n');
 
                 //Critical line
                 links[id] = links[index];
-//                links[id] = index;
 
                 max_dist = dist;
             }
@@ -73,15 +73,23 @@ module.exports = function(options) {
     }
 
     function generateGraph() {
-        var link;
+        var link, max = 0, max_word;
         for (var index in links) {
-            if(options.data[index].hide){
+            if (options.data[index].hide) {
                 continue;
             }
-            
+
             link = links[index];
             if (!graph.data[link]) {
                 graph.data[link] = [];
+//                for (var _index in graph.f[index].words) {
+//                    if (graph.f[index].words[_index] > max && options.data[index].title && options.data[index].title.indexOf(_index) >= 0) {
+//                        max = graph.f[index].words[_index];
+//                        max_word = _index;
+//                    }
+//                }
+//                console.log(max_word);
+//                graph.labels[link] = max_word;
             }
             graph.data[link].push(options.data[index]);
         }
@@ -89,7 +97,7 @@ module.exports = function(options) {
 
     (function() {
         for (var index in options.data) {
-            options.data[index].title = removeTags(options.data[index].title);
+//            options.data[index].title = removeTags(options.data[index].title);
             options.data[index].content = removeTags(options.data[index].content);
 
             graph.w[index] = getWords(options.data[index][content_key]);
